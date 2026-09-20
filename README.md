@@ -289,6 +289,7 @@ Interested in sponsoring this project? Feel free to reach out!
 - [Web-Augmented Agentic RAG](rag_apps/agentic_rag_with_web_search): Advanced RAG with CrewAI, Qdrant, and Exa for hybrid search capabilities
 
 ### 🔬 Advanced Agents
+- [OmniSage – Intelligent Multi-Agent Teaching and Learning Ecosystem](https://github.com/Archanaa-Thannirmalai/omnisage-platform): Multi-agent AI learning ecosystem that analyzes student learning needs, generates personalized learning resources, creates assessments, and supports adaptive learning through specialized educational agents
 
 **Complex multi-agent pipelines for production-ready end-to-end workflows.** _34 projects_
 
