@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Iterable
+from urllib.parse import urlparse
 
 import weaviate
 from weaviate.auth import AuthApiKey
@@ -16,10 +17,13 @@ COLLECTION = "VideoSegment"
 def get_client() -> weaviate.WeaviateClient:
     url = os.getenv("WEAVIATE_URL", "http://localhost:8080")
     api_key = os.getenv("WEAVIATE_API_KEY")
-    if api_key:
-        return weaviate.connect_to_weaviate_cloud(cluster_url=url, auth_credentials=AuthApiKey(api_key))
-    host = url.replace("http://", "").replace("https://", "").split(":")[0]
-    port = int(url.split(":")[-1]) if ":" in url.replace("http://", "").replace("https://", "") else 8080
+    parsed = urlparse(url if "://" in url else f"http://{url}")
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 8080
+    if api_key and host not in {"localhost", "127.0.0.1"}:
+        return weaviate.connect_to_weaviate_cloud(
+            cluster_url=url.rstrip("/"), auth_credentials=AuthApiKey(api_key)
+        )
     return weaviate.connect_to_local(host=host, port=port)
 
 

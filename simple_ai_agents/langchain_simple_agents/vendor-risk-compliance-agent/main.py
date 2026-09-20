@@ -18,7 +18,7 @@ ROOT = Path(__file__).parent
 DATA = ROOT / "data"
 
 
-class RiskItem(BaseModel):
+class LearningRiskItem(BaseModel):
     control_id: str
     severity: str
     finding: str
@@ -26,11 +26,11 @@ class RiskItem(BaseModel):
     remediation: str
 
 
-class VendorRiskReview(BaseModel):
-    vendor: str
+class LearningEcosystemReview(BaseModel):
+    learner: str
     decision: str
     summary: str
-    risks: list[RiskItem]
+    risks: list[LearningRiskItem]
     required_approvals: list[str]
     contract_redlines: list[str]
     go_live_conditions: list[str]
@@ -43,7 +43,7 @@ def read_json(path: Path) -> Any:
 
 @tool
 def search_policy_controls(query: str) -> str:
-    """Search internal security/privacy control requirements."""
+    """Search learning privacy, accessibility, and safeguarding requirements."""
     terms = set(re.findall(r"[a-z0-9]+", query.lower()))
     controls = read_json(DATA / "policy_controls.json")
     scored = []
@@ -58,7 +58,7 @@ def search_policy_controls(query: str) -> str:
 
 @tool
 def read_contract_excerpt() -> str:
-    """Read the available vendor contract excerpt."""
+    """Read the available learning-resource governance excerpt."""
     return (DATA / "contract_excerpt.txt").read_text()
 
 
@@ -73,12 +73,16 @@ def check_data_residency(hosting_region: str, data_types: list[str]) -> str:
 
 TOOLS = [search_policy_controls, read_contract_excerpt, check_data_residency]
 
-SYSTEM = """You are a vendor risk and compliance review agent.
-Use tools for policy and contract evidence. Do not approve vendors unconditionally.
+SYSTEM = """You are the governance specialist in a multi-agent learning ecosystem.
+You are one specialist in a multi-agent learning-support review workflow. Review a
+learner's profile and learning evidence for unmet needs, accessibility concerns,
+assessment gaps, and unsuitable resources. Use tools for evidence. Do not declare
+mastery without evidence. Your findings will be synthesized with resource, assessment,
+and educator-support agents.
 Return compact JSON only:
 {
-  "vendor": "...",
-  "decision": "approve|approve_with_conditions|reject|needs_review",
+    "learner": "...",
+    "decision": "support|support_with_conditions|needs_review",
   "summary": "...",
   "risks": [{"control_id":"...","severity":"low|medium|high","finding":"...","evidence":"...","remediation":"..."}],
   "required_approvals": ["..."],
@@ -104,12 +108,12 @@ def build_llm() -> Any:
     ).bind_tools(TOOLS)
 
 
-def run_agent(questionnaire: dict[str, Any]) -> VendorRiskReview:
+def run_agent(questionnaire: dict[str, Any]) -> LearningEcosystemReview:
     llm = build_llm()
     tools = {item.name: item for item in TOOLS}
     messages: list[Any] = [
         SystemMessage(content=SYSTEM),
-        HumanMessage(content=f"Review this vendor for production data use:\n{json.dumps(questionnaire)}"),
+        HumanMessage(content=f"Review this learner's support plan and available learning resources:\n{json.dumps(questionnaire)}"),
     ]
     audit = []
     for _ in range(7):
@@ -118,9 +122,9 @@ def run_agent(questionnaire: dict[str, Any]) -> VendorRiskReview:
         if not isinstance(response, AIMessage) or not response.tool_calls:
             content = response.content if isinstance(response.content, str) else json.dumps(response.content)
             if not content.strip():
-                messages.append(HumanMessage(content="Return the final vendor risk review as the requested JSON object now."))
+                messages.append(HumanMessage(content="Return the final learning-support review as the requested JSON object now."))
                 continue
-            result = VendorRiskReview.model_validate_json(extract_json(content))
+            result = LearningEcosystemReview.model_validate_json(extract_json(content))
             result.audit_trail = result.audit_trail + audit
             return result
         for call in response.tool_calls:
@@ -153,7 +157,7 @@ def extract_json(text: str) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Nebius + LangChain vendor risk agent.")
+    parser = argparse.ArgumentParser(description="Nebius multi-agent learning support review.")
     parser.add_argument("--questionnaire", type=Path, default=DATA / "vendor_questionnaire.json")
     args = parser.parse_args()
     print(run_agent(read_json(args.questionnaire)).model_dump_json(indent=2))
