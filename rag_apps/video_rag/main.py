@@ -1,4 +1,4 @@
-"""Streamlit UI for Video RAG: Gemini native multimodal embeddings + Weaviate + Nebius."""
+"""Educational resource RAG UI: Gemini embeddings + Weaviate + Nebius."""
 
 from __future__ import annotations
 
@@ -30,9 +30,9 @@ def ts_to_seconds(ts: str) -> int:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Video RAG (Gemini + Weaviate + Nebius)", layout="wide")
-    st.title("Video RAG")
-    st.caption("Native multimodal video search with Gemini embeddings, Weaviate, and Nebius Token Factory.")
+    st.set_page_config(page_title="Learning Resource RAG", layout="wide")
+    st.title("Learning Resource RAG")
+    st.caption("Retrieve evidence from teaching videos, assess understanding, and recommend next steps.")
 
     missing = check_env()
     if missing:
@@ -56,6 +56,7 @@ def main() -> None:
             ["Qwen/Qwen3-235B-A22B", "deepseek-ai/DeepSeek-V3", "meta-llama/Meta-Llama-3.1-70B-Instruct"],
             index=0,
         )
+        learner_mode = st.radio("Response for", ["student", "educator"], horizontal=True)
         clip_sec = st.slider("Clip length (sec)", 10.0, 60.0, 20.0, step=5.0)
         top_k = st.slider("Top-K clips", 3, 15, 8)
         uploaded = st.file_uploader("Upload video", type=["mp4", "mov", "mkv", "webm"])
@@ -83,7 +84,7 @@ def main() -> None:
             st.info("Upload and ingest a video to begin.")
 
     with col_chat:
-        st.subheader("Ask the video")
+        st.subheader("Ask the learning resource")
         if not st.session_state.ingested:
             st.info("Ingest a video first.")
             return
@@ -104,6 +105,7 @@ def main() -> None:
                         query,
                         video_id=st.session_state.video_id,
                         top_k=top_k,
+                        learner_mode=learner_mode,
                         model_id=st.session_state.model_id,
                     )
                 st.markdown(answer)

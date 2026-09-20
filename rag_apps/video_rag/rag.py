@@ -9,7 +9,7 @@ from openai import OpenAI
 from embeddings import embed_text
 from weaviate_store import get_client, search
 
-NEBIUS_BASE_URL = "https://api.studio.nebius.com/v1/"
+NEBIUS_BASE_URL = "https://api.studio.nebius.ai/v1/"
 
 
 def _fmt_ts(seconds: float) -> str:
@@ -46,19 +46,23 @@ def retrieve(query: str, video_id: str | None = None, top_k: int = 8) -> list[di
 def answer(
     query: str,
     hits: list[dict],
+    learner_mode: str = "student",
     model_id: str = "Qwen/Qwen3-235B-A22B",
 ) -> str:
     context = "\n".join(
         f"- clip at [{h['timestamp']}] (start={h['start']:.1f}s, end={h['end']:.1f}s, score={h['score']})"
         for h in hits
     )
+    audience = "a student" if learner_mode == "student" else "an educator"
     system = (
-        "You are a Video RAG assistant. You are given a list of video clips retrieved "
-        "for the user's question. Answer ONLY from those clips. Cite every factual "
-        "sentence with one or more timestamps in [mm:ss] format. If the clips are "
-        "insufficient, say so explicitly. Do not invent facts."
+        f"You are an educational RAG assistant helping {audience}. Retrieved clips are "
+        "the only source of truth. Answer only from them and cite every factual sentence "
+        "with timestamps in [mm:ss] format. For students, explain clearly and add one "
+        "short self-check question. For educators, report the learning evidence, likely "
+        "misconceptions, and one actionable intervention. If evidence is insufficient, "
+        "say so explicitly. Do not invent facts."
     )
-    user = f"Question: {query}\n\nRetrieved clips:\n{context}\n\nWrite a concise, cited answer."
+    user = f"Question: {query}\n\nRetrieved learning-resource clips:\n{context}\n\nWrite a concise, cited response."
     resp = _nebius_client().chat.completions.create(
         model=model_id,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -71,7 +75,8 @@ def ask(
     query: str,
     video_id: str | None = None,
     top_k: int = 8,
+    learner_mode: str = "student",
     model_id: str = "Qwen/Qwen3-235B-A22B",
 ) -> tuple[str, list[dict]]:
     hits = retrieve(query, video_id=video_id, top_k=top_k)
-    return answer(query, hits, model_id=model_id), hits
+    return answer(query, hits, learner_mode=learner_mode, model_id=model_id), hits

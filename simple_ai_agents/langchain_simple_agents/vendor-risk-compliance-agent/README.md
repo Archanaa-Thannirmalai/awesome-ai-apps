@@ -1,8 +1,8 @@
-# Vendor Risk Compliance Agent
+# Multi-Agent Learning Support Review
 
-Production use case: security, privacy, and procurement teams need fast vendor reviews grounded in internal controls and contract evidence.
+Educational use case: a governance specialist reviews learner data, resource quality, assessment evidence, accessibility, and safeguarding before a personalized learning plan is recommended.
 
-This project uses **Nebius through LangChain** to inspect a vendor questionnaire, search controls, read contract language, and produce a risk register with approval conditions.
+This project uses **Nebius through LangChain** to inspect a learner profile, search educational controls, read governance evidence, and produce actionable conditions for student and educator support. It is designed to be one specialist in a larger workflow with learner-needs, resource-quality, assessment, and recommendation agents.
 
 ## Run
 
@@ -17,8 +17,8 @@ python main.py
 
 ## Production Pattern Demonstrated
 
-- Policy-grounded agentic review
-- Data residency and personal-data checks
+- Policy-grounded learning-support review
+- Learner privacy, accessibility, and safeguarding checks
 - Risk register as typed JSON
-- Contract redline suggestions
-- Conditional go-live decision
+- Governance remediation suggestions
+- Conditional support decision

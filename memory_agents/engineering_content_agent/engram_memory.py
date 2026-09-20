@@ -78,18 +78,18 @@ def _format_list(items: list[str], limit: int = 6) -> str:
 
 
 def build_product_context_memory(context: CompanyContext) -> str:
-    company = context.company_name or context.product or "Unknown company"
-    product = context.product or company
+    learner = context.company_name or context.product or "Unknown learner"
+    learning_goal = context.product or "not specified"
     lines = [
-        f"Product context for {company}.",
-        f"Product/category: {product}.",
-        f"Audience: {context.audience or 'not specified'}.",
-        f"Seed keywords: {_format_list(context.seed_keywords)}.",
+        f"Product context for {learner} (learner profile).",
+        f"Learning goal or course: {learning_goal}.",
+        f"Learner level and needs: {context.audience or 'not specified'}.",
+        f"Topics and skills: {_format_list(context.seed_keywords)}.",
     ]
     if context.competitors:
-        lines.append(f"Competitors/alternatives: {_format_list(context.competitors)}.")
+        lines.append(f"Known strengths or alternatives: {_format_list(context.competitors)}.")
     if context.existing_topics:
-        lines.append(f"Existing topics: {_format_list(context.existing_topics)}.")
+        lines.append(f"Previously covered topics: {_format_list(context.existing_topics)}.")
     return " ".join(lines)
 
 
@@ -112,19 +112,19 @@ def build_research_summary_memory(
     ]
 
     if report.trend_digest:
-        lines.append("Top developer trends:")
+        lines.append("Learning needs identified:")
         for index, trend in enumerate(report.trend_digest[:3], 1):
             topic = trend.topic[:100]
             lines.append(f"{index}. {topic} (intensity {trend.intensity_score}).")
 
     if report.content_ideas:
-        lines.append("Top talk/blog ideas:")
+        lines.append("Personalized learning resources:")
         for index, idea in enumerate(report.content_ideas[:3], 1):
             title = idea.title[:100]
             lines.append(f"{index}. {title} ({idea.format}, score {idea.score}).")
 
     if content_gaps:
-        lines.append("Key demand and supply gaps:")
+        lines.append("Knowledge gaps and recommended interventions:")
         for gap in content_gaps[:3]:
             topic = gap.topic[:80]
             lines.append(

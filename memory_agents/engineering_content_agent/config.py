@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 DEFAULT_MODEL = "zai-org/GLM-5.2"
 DEFAULT_BASE_URL = "https://api.tokenfactory.nebius.com/v1/"
-DEFAULT_ENGRAM_USER_ID = "engineering-content-agent-user"
+DEFAULT_ENGRAM_USER_ID = "learning-ecosystem-user"
 
 
 @dataclass(frozen=True)
