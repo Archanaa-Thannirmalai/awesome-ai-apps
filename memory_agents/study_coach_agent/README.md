@@ -1,11 +1,18 @@
 ### AI Study Coach with Memori & LangGraph
 
-An AI-powered **Study Coach** that uses **Memori v3** as long-term memory and **LangGraph** for multi-step verification of understanding.
+This project implements the concept of an intelligent multi-agent learning ecosystem in which autonomous agents collaborate to improve teaching and learning outcomes. The system identifies learner needs, detects student misconceptions, generates personalized learning resources, evaluates understanding, analyzes learning performance, and provides actionable recommendations to both students and educators.
 
-- **Plans & tracks** your learning via a Streamlit UI.
-- Uses **LangGraph** to generate quizzes and evaluate real understanding.
+- **Plans & tracks** learning journeys via a Streamlit UI.
+- Uses **LangGraph** to generate quizzes, assess student understanding, and identify misconceptions.
+- Produces **personalized learning resources** and targeted study recommendations.
 - Stores **structured learner profiles and study sessions in Memori** (SQLite/Postgres/MySQL/MongoDB, configurable).
-- Provides a **Memori-powered chat** to reflect on progress, weak topics, and learning patterns.
+- Provides a **Memori-powered coaching experience** for progress analysis and educator-ready insights.
+
+#### Three aligned workflow examples
+
+1. **Student misconception detection example** – surfaces gaps in understanding and pinpoints likely misconceptions.
+2. **Secure agent control workflow** – keeps agent actions controlled, logged, and safely scoped for an authenticated learning environment.
+3. **Collaborative agent review workflow** – lets educators and the learner review AI-generated insights before finalizing recommendations.
 
 ---
 
@@ -27,8 +34,10 @@ An AI-powered **Study Coach** that uses **Memori v3** as long-term memory and **
   - Runs a **LangGraph-powered verification flow**:
     - Generates 3–5 quiz questions.
     - Prompts you to explain the topic “in your own words”.
+    - Detects likely misconceptions and learning gaps.
+    - Recommends personalized learning resources and next actions for both the learner and educator.
     - Evaluates understanding (0–100), surfaces feedback, and suggests a next step.
-  - Writes a summarised study session into **Memori** (topic, score, difficulty, mood, feedback, next step).
+  - Writes a summarised study session into **Memori** (topic, score, misconceptions, recommendations, performance summary).
 
 - 📈 **Progress & Memory tab (chat)**
   - Chat with a Memori-backed assistant about your learning history:

@@ -262,7 +262,7 @@ Interested in sponsoring this project? Feel free to reach out!
 - [Persistent Memory Agent (Agno)](memory_agents/agno_memory_agent): Agno-based agent with persistent memory capabilities
 - [Product Launch Agent](memory_agents/product_launch_agent): Competitive intelligence tool for analyzing competitor product launches
 - [Social Media Agent](memory_agents/social_media_agent): Social media automation agent with memory for brand voice
-- [Study Coach Agent](memory_agents/study_coach_agent): AI-powered study coach with Memori v3 and LangGraph for multi-step verification of understanding
+- [Study Coach Agent](memory_agents/study_coach_agent): Intelligent multi-agent learning ecosystem for learning-path planning, misconception detection, personalized resources, student/educator recommendations, and understanding checks
 - [YouTube Trend Agent](memory_agents/youtube_trend_agent): YouTube channel analysis agent with Memori, Agno, and Exa for trend analysis and video ideas
 
 ### 📚 RAG Applications

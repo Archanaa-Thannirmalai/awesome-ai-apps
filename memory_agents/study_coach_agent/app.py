@@ -381,12 +381,27 @@ def today_session_tab(memori_mgr: MemoriManager):
     # Show last result
     if st.session_state.last_result:
         r = st.session_state.last_result
-        st.markdown("##### 🎯 Result")
+        st.markdown("##### 🎯 Learning Performance Result")
         if r.score is not None:
             st.metric("Understanding score", f"{r.score}/100")
+        if r.performance_summary:
+            st.markdown("**Performance summary**")
+            st.write(r.performance_summary)
         if r.feedback:
             st.markdown("**Feedback**")
             st.write(r.feedback)
+        if r.misconceptions:
+            st.markdown("**Likely misconceptions detected**")
+            st.write("\n".join(f"- {m}" for m in r.misconceptions))
+        if r.personalized_learning_resources:
+            st.markdown("**Personalized learning resources**")
+            st.write("\n".join(f"- {item}" for item in r.personalized_learning_resources))
+        if r.student_recommendations:
+            st.markdown("**Recommendations for the student**")
+            st.write("\n".join(f"- {item}" for item in r.student_recommendations))
+        if r.educator_recommendations:
+            st.markdown("**Recommendations for the educator**")
+            st.write("\n".join(f"- {item}" for item in r.educator_recommendations))
         if r.next_step_recommendation:
             st.markdown("**Recommended next step**")
             st.write(r.next_step_recommendation)

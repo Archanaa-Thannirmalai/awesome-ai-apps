@@ -46,6 +46,11 @@ class VerificationResult(BaseModel):
     score: int | None = None
     feedback: str | None = None
     next_step_recommendation: str | None = None
+    misconceptions: list[str] = Field(default_factory=list)
+    personalized_learning_resources: list[str] = Field(default_factory=list)
+    student_recommendations: list[str] = Field(default_factory=list)
+    educator_recommendations: list[str] = Field(default_factory=list)
+    performance_summary: str | None = None
 
 
 class VerificationState(TypedDict, total=False):
@@ -58,6 +63,11 @@ class VerificationState(TypedDict, total=False):
     score: int
     feedback: str
     next_step_recommendation: str
+    misconceptions: list[str]
+    personalized_learning_resources: list[str]
+    student_recommendations: list[str]
+    educator_recommendations: list[str]
+    performance_summary: str
 
 
 def _generate_quiz_node(state: VerificationState, llm_client) -> VerificationState:
@@ -126,19 +136,28 @@ def _evaluate_node(state: VerificationState, llm_client) -> VerificationState:
     qa_text = "\n\n".join(qa_pairs)
 
     system_prompt = (
-        "You are an expert tutor. Given the learner's goal, topic, quiz questions, "
-        "their answers and explanation, evaluate understanding on a 0-100 scale. "
-        "Be strict but encouraging. Identify misconceptions and suggest how to fix them."
+        "You are an expert tutor and learning analytics coach. Given the learner's goal, "
+        "topic, quiz answers, and reflection, evaluate understanding on a 0-100 scale. "
+        "Identify misconceptions, explain why the learner may be struggling, suggest "
+        "personalized practice resources, and provide actionable recommendations for both "
+        "the student and the educator."
     )
     user_prompt = (
         f"Learner goal: {profile.main_goal} over {profile.timeframe}\n"
         f"Today's topic: {log.topic}\n\n"
         f"Quiz and answers:\n{qa_text}\n\n"
         f"Learner's explanation:\n{explanation}\n\n"
-        "1) First, provide a single integer score from 0 to 100.\n"
-        "2) Then provide concise feedback and next-step advice.\n"
-        "Respond ONLY with a valid JSON object of the form: "
-        '{"score": <int>, "feedback": "<text>", "next_step": "<text>"}'
+        "1) Provide a single integer score from 0 to 100.\n"
+        "2) Detect likely misconceptions and learning gaps.\n"
+        "3) Recommend 2-4 personalized learning resources or activities.\n"
+        "4) Provide short student-facing recommendations.\n"
+        "5) Provide short educator-facing recommendations.\n"
+        "6) Summarize the learner's current performance pattern in one sentence.\n"
+        "Respond ONLY with valid JSON in the form: "
+        '{"score": <int>, "feedback": "<text>", "next_step": "<text>", '
+        '"misconceptions": ["<text>"], "personalized_learning_resources": ["<text>"], '
+        '"student_recommendations": ["<text>"], "educator_recommendations": ["<text>"], '
+        '"performance_summary": "<text>"}'
     )
 
     # Request structured JSON so we don't have to do fragile brace-slicing.
@@ -156,6 +175,11 @@ def _evaluate_node(state: VerificationState, llm_client) -> VerificationState:
     score = 0
     feedback = ""
     next_step = ""
+    misconceptions: list[str] = []
+    personalized_learning_resources: list[str] = []
+    student_recommendations: list[str] = []
+    educator_recommendations: list[str] = []
+    performance_summary = ""
     try:
         import json  # local import to keep top neat
 
@@ -163,6 +187,25 @@ def _evaluate_node(state: VerificationState, llm_client) -> VerificationState:
         score = int(obj.get("score", 0))
         feedback = str(obj.get("feedback", "") or "")
         next_step = str(obj.get("next_step", "") or "")
+        misconceptions = [
+            str(item) for item in obj.get("misconceptions", []) if str(item).strip()
+        ]
+        personalized_learning_resources = [
+            str(item)
+            for item in obj.get("personalized_learning_resources", [])
+            if str(item).strip()
+        ]
+        student_recommendations = [
+            str(item)
+            for item in obj.get("student_recommendations", [])
+            if str(item).strip()
+        ]
+        educator_recommendations = [
+            str(item)
+            for item in obj.get("educator_recommendations", [])
+            if str(item).strip()
+        ]
+        performance_summary = str(obj.get("performance_summary", "") or "")
     except Exception:
         # Fall back to treating the raw content as feedback if parsing somehow fails.
         feedback = raw
@@ -171,6 +214,11 @@ def _evaluate_node(state: VerificationState, llm_client) -> VerificationState:
     state["score"] = score
     state["feedback"] = feedback
     state["next_step_recommendation"] = next_step
+    state["misconceptions"] = misconceptions
+    state["personalized_learning_resources"] = personalized_learning_resources
+    state["student_recommendations"] = student_recommendations
+    state["educator_recommendations"] = educator_recommendations
+    state["performance_summary"] = performance_summary
     return state
 
 
@@ -249,4 +297,11 @@ def run_full_evaluation(
         score=result_state.get("score"),
         feedback=result_state.get("feedback"),
         next_step_recommendation=result_state.get("next_step_recommendation"),
+        misconceptions=result_state.get("misconceptions", []),
+        personalized_learning_resources=result_state.get(
+            "personalized_learning_resources", []
+        ),
+        student_recommendations=result_state.get("student_recommendations", []),
+        educator_recommendations=result_state.get("educator_recommendations", []),
+        performance_summary=result_state.get("performance_summary"),
     )
